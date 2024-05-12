@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Shortly</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-image: url('/shortly/bg.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 40px;
+            border-radius: 10px;
+            max-width: 80%;
+            margin: auto;
+        }
+
+        .message {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        input[type="url"],
+        input[type="submit"] {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            border: none;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        #copyBtnContainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+
+        }
+
+
+        #copyBtn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background-color: #267a80;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        @media only screen and (min-width: 600px) {
+            .container {
+                padding: 60px;
+            }
+
+            .message {
+                font-size: 32px;
+            }
+
+            input[type="url"],
+            input[type="submit"] {
+                max-width: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="message">Shorten your link!</h1>
+        <div>
+            <input name="text" type="url" value id="linkinput" placeholder="Paste a URL to shorten">
+            <input type="submit" id="myinput" value="Shorten">
+        </div>
+        <p id="message"></p>
+        <p id="shortenedURL"></p>
+        <div id="copyBtnContainer">
+            <button id="copyBtn" style="display: none;">Copy Shortened URL</button>
+        </div>
+    </div>
+    <script>
+        document.getElementById("myinput").onclick = function () {
+            var link = document.getElementById("linkinput").value;
+            var data = {
+                "domain": "YOUR DOMAIN NAME",
+                "originalURL": link,
+                "allowDuplicates": false
+            };
+            fetch('https://api.short.cm/links/public', {
+                method: 'post',
+                headers: {
+                    'accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'authorization': 'YOUR API'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    var shortenedURL = data.shortURL;
+                    document.getElementById("shortenedURL").innerHTML = "Your short link is <a href='" + shortenedURL + "' target='_blank'>" + shortenedURL + "</a>";
+                    document.getElementById("copyBtn").style.display = "block";
+                    document.getElementById("copyBtn").setAttribute("data-clipboard-text", shortenedURL);
+                });
+            document.getElementById("linkinput").value = '';
+        };
+
+        document.getElementById("copyBtn").onclick = function () {
+            var copyText = document.getElementById("copyBtn").getAttribute("data-clipboard-text");
+            navigator.clipboard.writeText(copyText).then(function () {
+                alert("Copied to clipboard!");
+            }, function (err) {
+                console.error('Failed to copy: ', err);
+            });
+        };
+
+        document.getElementById("linkinput").addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                document.getElementById("myinput").click();
+            }
+        });
+
+        // var isLoggedIn = sessionStorage.getItem('isLoggedIn');
+        // if (!isLoggedIn) {
+        //     window.location.href = 'index.html'; // Redirect to login.html
+        // }
+
+
+        setTimeout(function() {
+            sessionStorage.removeItem('isLoggedIn'); // Clear the isLoggedIn flag
+            window.location.href = 'index.html';
+        }, 5 * 60 * 1000); // 5000 milliseconds = 5 seconds
+
+    </script>
+
+</body>
+
+</html>
